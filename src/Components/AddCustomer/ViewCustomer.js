@@ -7,6 +7,8 @@ const ViewCustomer = () => {
   const [filteredCustomers, setFilteredCustomers] = useState([]);
   const [error, setError] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
+  const [isEditing, setIsEditing] = useState(false);
+  const [editedCustomer, setEditedCustomer] = useState({});
 
   useEffect(() => {
     const fetchCustomers = async () => {
@@ -27,7 +29,6 @@ const ViewCustomer = () => {
     fetchCustomers();
   }, []);
 
-  // Function to filter customers based on search criteria
   const filterCustomers = () => {
     const filteredData = customers.filter((customer) => {
       const customerNameMatches = customer.Cus_name.toLowerCase().includes(searchQuery.toLowerCase());
@@ -42,22 +43,55 @@ const ViewCustomer = () => {
     filterCustomers();
   }, [searchQuery]);
 
-  // Function to edit a customer (example implementation)
-  const editCustomer = (customerId) => {
-    // Implement your edit logic here
-    console.log(`Edit customer with ID: ${customerId}`);
+  const deleteCustomer = async (customerId) => {
+    const confirmed = window.confirm("Are you sure you want to delete this customer?");
+    if (confirmed) {
+      try {
+        const response = await fetch(`http://localhost:7000/api/add-customers/${customerId}`, {
+          method: 'DELETE',
+        });
+
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+
+        setFilteredCustomers((prevCustomers) => prevCustomers.filter((customer) => customer._id !== customerId));
+        alert('Customer deleted successfully');
+      } catch (error) {
+        console.error('Error deleting customer:', error);
+        setError('Error deleting customer: ' + error.message);
+      }
+    }
   };
 
-  // Function to save a customer (example implementation)
-  const saveCustomer = (customerId) => {
-    // Implement your save logic here
-    console.log(`Save customer with ID: ${customerId}`);
+  const handleEditCustomer = (customer) => {
+    setEditedCustomer(customer);
+    setIsEditing(true);
   };
 
-  // Function to delete a customer (example implementation)
-  const deleteCustomer = (customerId) => {
-    // Implement your delete logic here
-    console.log(`Delete customer with ID: ${customerId}`);
+  const handleSave = async () => {
+    try {
+      const response = await fetch(`http://localhost:7000/api/add-customers/${editedCustomer._id}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(editedCustomer),
+      });
+
+      if (response.ok) {
+        setCustomers(prevCustomers =>
+          prevCustomers.map(customer =>
+            customer._id === editedCustomer._id ? editedCustomer : customer
+          )
+        );
+        setIsEditing(false);
+      } else {
+        console.error('Error updating customer:', response.status);
+      }
+    } catch (error) {
+      console.error('Error updating customer:', error);
+    }
   };
 
   return (
@@ -92,30 +126,9 @@ const ViewCustomer = () => {
                       <p className="custom-card-subtitle mb-2">Email: {customer.Cus_Email}</p>
                       <p className="custom-card-subtitle mb-2">Address: {customer.address}</p>
                       <div className="flex justify-between">
-                        {/* <button
-                          className="viewcus-btn bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mb-10"
-                          onClick={() => editCustomer(customer._id)}
-                        >
-                          Edit
-                        </button> */}
-                        {/* <button
-                          className="viewcus-btn bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded mb-10 "
-                          onClick={() => saveCustomer(customer._id)}
-                        >
-                          Save
-                        </button> */}
-                        {/* <button
-                          className="viewcus-btn bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded mb-10"
-                          onClick={() => deleteCustomer(customer._id)}
-                        >
-                          Delete
-                        </button> */}
-                        {/* <div className='customer-btn mt-5 '> */}
-
-                        <button className='btn btn-info'>Edit</button>
-                        <button className='btn btn-danger'>Save</button>
-                        <button className='btn btn-success'>Delete</button>
-                        {/* </div> */}
+                        <button className='btn btn-info' onClick={() => handleEditCustomer(customer)}>Edit</button>
+                        {/* <button className='btn btn-danger'>Save</button> */}
+                        <button className='btn btn-danger' onClick={() => deleteCustomer(customer._id)}>Delete</button>
                       </div>
                     </div>
                   </div>
@@ -125,6 +138,64 @@ const ViewCustomer = () => {
           </div>
         </div>
       </div>
+
+      {isEditing && (
+        <div className="fixed inset-0 flex justify-center items-center bg-black bg-opacity-50">
+          <div className="bg-white p-4 rounded shadow-lg">
+            <h2 className="text-2xl font-bold mb-2">Edit Customer</h2>
+            <h5 className='fw-bold'>Customer Name</h5>
+            <input
+              type="text"
+              value={editedCustomer.Cus_name}
+              onChange={(e) => setEditedCustomer({ ...editedCustomer, Cus_name: e.target.value })}
+              className="w-full p-2 mb-2 border border-gray-300 rounded"
+            />
+            <h5 className='fw-bold'>Company Name</h5>
+            <input
+              type="text"
+              value={editedCustomer.company_name}
+              onChange={(e) => setEditedCustomer({ ...editedCustomer, company_name: e.target.value })}
+              className="w-full p-2 mb-2 border border-gray-300 rounded"
+            />
+            <h5 className='fw-bold'>GST No </h5>
+            <input
+              type="text"
+              value={editedCustomer.gst_no}
+              onChange={(e) => setEditedCustomer({ ...editedCustomer, gst_no: e.target.value })}
+              className="w-full p-2 mb-2 border border-gray-300 rounded"
+            />
+            <h5 className='fw-bold'>Customer Mobile</h5>
+             <input
+              type="text"
+              value={editedCustomer.Cus_Mobile}
+              onChange={(e) => setEditedCustomer({ ...editedCustomer, Cus_Mobile: e.target.value })}
+              className="w-full p-2 mb-2 border border-gray-300 rounded"
+            />
+            <h5 className='fw-bold'>Customer Email</h5>
+             <input
+              type="text"
+              value={editedCustomer.Cus_Email}
+              onChange={(e) => setEditedCustomer({ ...editedCustomer, Cus_Email: e.target.value })}
+              className="w-full p-2 mb-2 border border-gray-300 rounded"
+            />
+            <h5 className='fw-bold'>Address</h5>
+             <input
+              type="text"
+              value={editedCustomer.address}
+              onChange={(e) => setEditedCustomer({ ...editedCustomer, address: e.target.value })}
+              className="w-full p-2 mb-2 border border-gray-300 rounded"
+            />
+            {/* <textarea
+              value={editedCustomer.company_name}
+              onChange={(e) => setEditedCustomer({ ...editedCustomer, company_name: e.target.value })}
+              rows="4"
+              className="w-full p-2 mb-4 border border-gray-300 rounded"
+            /> */}
+            <button onClick={handleSave} className="px-4 py-2 bg-blue-500 text-white rounded">Save</button>
+            <button onClick={() => setIsEditing(false)} className="px-4 py-2 ml-2 bg-red-500 text-white rounded">Cancel</button>
+          </div>
+        </div>
+      )}
     </>
   );
 };

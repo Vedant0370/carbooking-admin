@@ -26,6 +26,7 @@ const AddPaymentSchema = new mongoose.Schema({
     extramkm_Amount :Number,
     extra_Hours :String,
     extrahours_Amount :String,
+    subtotal_Amount:Number,
     SGST : Number,
     CGST :Number,
     total_Amount :Number,
@@ -33,11 +34,14 @@ const AddPaymentSchema = new mongoose.Schema({
     remaining_Amount :Number,
     payment_Method :String
 
-    
-    
-    
-    
-    
+})
+
+const NewAddPaymentDetails = new mongoose.model('/Customer-payment-details' , AddPaymentSchema)
+
+module.exports = NewAddPaymentDetails
+
+
+
     // name : String,
     // trip_Details : {
 
@@ -80,9 +84,3 @@ const AddPaymentSchema = new mongoose.Schema({
     //     total_Amount : Number,
     //     advance_Payment : Number
     // },
-
-})
-
-const NewAddPaymentDetails = new mongoose.model('/Customer-payment-details' , AddPaymentSchema)
-
-module.exports = NewAddPaymentDetails

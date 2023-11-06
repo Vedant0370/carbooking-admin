@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import Sidebar from '../Sidebar/Sidebar';
-import jsPDF from 'jspdf';
+// import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 
-const ViewShareDetails = () => {
+const ViewStartEndDetails = () => {
   const [shareDetails, setShareDetails] = useState([]);
   const [filteredShareDetails, setFilteredShareDetails] = useState([]);
   const [error, setError] = useState(null);
@@ -12,7 +12,7 @@ const ViewShareDetails = () => {
   useEffect(() => {
     const fetchShareDetails = async () => {
       try {
-        const response = await fetch('http://localhost:7000/api/share-details');
+        const response = await fetch('http://localhost:7000/api/getDetails-fromDriver');
         if (!response.ok) {
           throw Error('Network response was not ok');
         }
@@ -27,27 +27,6 @@ const ViewShareDetails = () => {
 
     fetchShareDetails();
   }, []);
-
-  const fetchAdditionalInfo = async (shareDetail) => {
-    try {
-      // Make an API call to fetch additional information based on the share trip details ID
-      const additionalInfoResponse = await fetch(`http://localhost:7000/api/additional-info/${shareDetail.sharetripdetailsId}`);
-      if (!additionalInfoResponse.ok) {
-        throw Error('Error fetching additional info');
-      }
-      const additionalInfoData = await additionalInfoResponse.json();
-
-      // Update the share detail with additional info
-      const updatedShareDetails = shareDetails.map((detail) =>
-        detail._id === shareDetail._id ? { ...detail, ...additionalInfoData } : detail
-      );
-
-      setShareDetails(updatedShareDetails);
-      setFilteredShareDetails(updatedShareDetails);
-    } catch (error) {
-      console.error('Error fetching additional info: ' + error.message);
-    }
-  };
 
   const filterShareDetails = () => {
     const filteredData = shareDetails.filter((shareDetail) => {
@@ -65,47 +44,40 @@ const ViewShareDetails = () => {
     filterShareDetails();
   }, [searchText]);
 
-  const generateInvoice = (shareDetail) => {
-    const doc = new jsPDF();
+  // const generateInvoice = (shareDetail) => {
+  //   const doc = new jsPDF();
 
-    // Add your code to generate the invoice in a table format here
-    // For simplicity, we'll just add a sample table with the data
-    doc.text('Shivpushpa Travels Invoice', 10, 10);
+  //   // Add your code to generate the invoice in a table format here
+  //   // For simplicity, we'll just add a sample table with the data
+  //   doc.text('Sample Invoice', 10, 10);
 
-    const columns = ['Field', 'Value'];
-    const rows = [
-      ['Company Name', shareDetail.companyName],
-      ['Company Address', shareDetail.companyAddress],
-      ['Invoice No', shareDetail.invoiceNo],
-      ['Contact No', shareDetail.contactNo],
-      ['Email', shareDetail.email],
-      ['PO No', shareDetail.poNo],
-      ['Customer ID', shareDetail.customerId],
-      ['Vehicle', shareDetail.vehicle],
-      ['Trip Type', shareDetail.triptype],
-      ['Subtype', shareDetail.subtype],
-      ['Pickup', shareDetail.pickup],
-      ['Date', shareDetail.date],
-      ['Time', shareDetail.time],
-      ['Droff Location', shareDetail.Dropoff],
-      ['Drop Off Date', shareDetail.date1],
-      ['Drop Off Time', shareDetail.time1],
-      ['Driver Name', shareDetail.drivername],
-      ['Driver Email', shareDetail.drivermail],
-      ['Mobile No', shareDetail.mobileno],
-      ['Mobile No1', shareDetail.mobileno1],
-      // Add other fields as needed
-    ];
+  //   const columns = ['Field', 'Value'];
+  //   const rows = [
+  //     ['Vehicle', shareDetail.vehicle],
+  //     ['Trip Type', shareDetail.triptype],
+  //     ['Subtype', shareDetail.subtype],
+  //     ['Pickup', shareDetail.pickup],
+  //     ['Date', shareDetail.date],
+  //     ['Time', shareDetail.time],
+  //     ['Droff Location', shareDetail.totalDays],
+  //     ['Drop Off Date', shareDetail.date1],
+  //     ['Drop Off Time', shareDetail.time1],
+  //     ['Driver Name', shareDetail.drivername],
+  //     ['Driver Email', shareDetail.drivermail],
+  //     ['Mobile Number', shareDetail.mobileno],
+  //     ['Mobile Number', shareDetail.mobileno1],
+  //     // Add other fields as needed
+  //   ];
 
-    doc.autoTable({
-      head: [columns],
-      body: rows,
-      startY: 20,
-    });
+  //   doc.autoTable({
+  //     head: [columns],
+  //     body: rows,
+  //     startY: 20,
+  //   });
 
-    // Save the PDF or open in a new tab
-    doc.save(`Invoice_${shareDetail._id}.pdf`);
-  };
+  //   // Save the PDF or open in a new tab
+  //   doc.save(`Invoice_${shareDetail._id}.pdf`);
+  // };
 
   const handleEditShareDetail = (shareDetail) => {
     // Implement your edit functionality here
@@ -127,7 +99,7 @@ const ViewShareDetails = () => {
       <Sidebar />
       <div className="share-details-container">
         <div className="share-details-main-container">
-          <h2 style={{ fontSize: "2rem", fontWeight: "bold", marginBottom: "8px" }}>View Share Details</h2>
+          <h2 style={{ fontSize: "2rem", fontWeight: "bold", marginBottom: "8px" }}>View Driver Trip Details</h2>
           <div className="p-4 space-y-4">
             <input
               type="text"
@@ -144,26 +116,27 @@ const ViewShareDetails = () => {
               {filteredShareDetails.map((shareDetail) => (
                 <div key={shareDetail._id} className="bg-white shadow-md rounded-lg overflow-hidden">
                   <div className="p-4">
-                    <h5 className="font-semibold  ">Vehicle: {shareDetail.vehicle}</h5>
-                    <p className="mb-2">Trip Type: {shareDetail.triptype}</p>
-                    <p className="mb-2">Subtype: {shareDetail.subtype}</p>
-                    <p className="mb-2">Pickup: {shareDetail.pickup}</p>
-                    <p className="mb-2">Date: {shareDetail.date}</p>
-                    <p className="mb-2">Time: {shareDetail.time}</p>
-                    <p className="mb-2">Dropoff: {shareDetail.Dropoff}</p>
-                    <p className="mb-2">Date1: {shareDetail.date1}</p>
-                    <p className="mb-2">Time1: {shareDetail.time1}</p>
-                    <p className="mb-2">Driver Name: {shareDetail.drivername}</p>
-                    <p className="mb-2">Driver Email: {shareDetail.drivermail}</p>
-                    <p className="mb-2">Mobile No: {shareDetail.mobileno}</p>
-                    <p className="mb-2">Mobile No1: {shareDetail.mobileno1}</p>
+                  <h5 className="font-semibold">Driver Name : {shareDetail.drivername}</h5>
+                    <p className="mb-2">Pickup Location : {shareDetail.pickuplocation}</p>
+                    <p className="mb-2">Date : {shareDetail.date}</p>
+                    <p className="mb-2">Time : {shareDetail.time}</p>
+                    <p className="mb-2">Drop Location : {shareDetail.totalDaysLocation}</p>
+                    <p className="mb-2">Date1 : {shareDetail.date1}</p>
+                    <p className="mb-2">Time1 : {shareDetail.time1}</p>
+                    <p className="mb-2">Total Days : {shareDetail.totalDays}</p>
+                    <p className="mb-2">Total Hours : {shareDetail.totalHours}</p>
+                    <p className="mb-2">Trip Type : {shareDetail.triptype}</p>
+                    <p className="mb-2">Trip Sub Type : {shareDetail.tripsubtype}</p>
+                    
+                    <p className="mb-2">Mobile No : {shareDetail.mobileNumber}</p>
+                    {/* <p className="mb-2">Mobile No1: {shareDetail.mobilrno1}</p> */}
                     <div className="flex justify-between">
-                      <button
+                      {/* <button
                         className='btn btn-primary btn-sm'
                         onClick={() => generateInvoice(shareDetail)}
                       >
                         Generate
-                      </button>
+                      </button> */}
                       <button
                         className='btn btn-info btn-sm'
                         onClick={() => handleEditShareDetail(shareDetail)}
@@ -194,4 +167,4 @@ const ViewShareDetails = () => {
   );
 };
 
-export default ViewShareDetails;
+export default ViewStartEndDetails;

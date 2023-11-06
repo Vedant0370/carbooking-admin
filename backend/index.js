@@ -5,11 +5,22 @@ const mongoose = require('mongoose')
 const bodyParser = require('body-parser')
 const app = express()
 const cors =require('cors')
+const session = require('express-session')
+const MongoStore = require('connect-mongo')
 const port = process.env.PORT || 7000
 
 // middleware 
 app.use(bodyParser.json({limit : "10mb"}))
-app.use(cors())
+app.use(cors({origin : 'http://localhost:3000' , credentials : true}))
+app.use(session({
+    secret: 'jsdghsdf781324gubfy7bf',
+    resave: true,
+    saveUninitialized: false,
+    store: MongoStore.create({
+      mongoUrl: 'mongodb+srv://vedantassignment05:0Q1CWhizw7a5VNG0@car-booking.tioi0b9.mongodb.net/?retryWrites=true&w=majority'
+    }),
+    cookie: { maxAge: 99999999999999, sameSite: "lax", secure: false },
+  }))
 
 // database connectivity on mongoDB Atlas
 
@@ -29,13 +40,15 @@ const ShareDetails = require('./src/routes/ShareDetails')
 const TripDetails = require('./src/routes/TripDetails')
 const UpdateDuty = require('./src/routes/UpdateDuty')
 const NewGetDetailsFromDriver = require('./src/routes/GetDetailsfromDriver')
-const NewAddPaymentSchema = require('./src/routes/AddPayment')
+const newCustomerPayment = require('./src/routes/AddCusPayment')
 const AddVenders = require('./src/routes/AddVenders')
 const AddCustomers = require('./src/routes/AddCustomer')
+const AddDriver = require('./src/routes/AddDriver')
 const addTrip = require('./src/routes/AddTrip')
 const VenderPayment = require('./src/routes/VenderPayment')
 const rateSchema = require('./src/routes/Rate')
 const venderRate = require('./src/routes/VenderRate')
+const userLogin  = require('./src/routes/UserLogin')
 
 
 
@@ -47,13 +60,15 @@ apiRouter.use('/share-details' , ShareDetails)
 apiRouter.use('/trip-details' , TripDetails)
 apiRouter.use('/update-duty' , UpdateDuty)
 apiRouter.use('/getDetails-fromDriver' , NewGetDetailsFromDriver)
-apiRouter.use('/customer-payment' , NewAddPaymentSchema)
+apiRouter.use('/customer-payment' , newCustomerPayment)
 apiRouter.use('/add-venders' , AddVenders)
 apiRouter.use('/add-customers' , AddCustomers)
 apiRouter.use('/add-trip' , addTrip)
 apiRouter.use('/vender-payment' , VenderPayment)
 apiRouter.use('/customer-rate' , rateSchema)
 apiRouter.use('/vender-rate' , venderRate)
+apiRouter.use('/add-drivers' , AddDriver)
+apiRouter.use('/user-login' , userLogin)
 
 
 // handle here all api routes 

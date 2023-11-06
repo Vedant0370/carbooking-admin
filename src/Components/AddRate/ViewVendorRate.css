@@ -22,14 +22,9 @@
     font-size: 1rem;
     margin-bottom: 4px;
   }
-  .viewcus-btn{
+  .add-vendor-btn{
     margin-bottom: 10px !important;
   }
-  .add-cus-btn{
+  .add-vendor-btn{
     color: white;
   }
-  .shadow-lg {
-    box-shadow: 0 1rem 3rem rgba(0,0,0,.175)!important;
-    margin-left: 300px;
-    width: 50%;
-}
