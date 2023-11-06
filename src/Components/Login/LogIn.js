@@ -46,7 +46,7 @@ const Login = () => {
     }
     try {
       // http://localhost:7000/api/user-login/logout
-      axios.post('http://localhost:7000/api/user-login', formData, { withCredentials: true })
+      axios.post('https://carbooking-backend-fo78.onrender.com/api/user-login', formData, { withCredentials: true })
         .then((res) => {
           console.log(res.data)
           localStorage.setItem('user', JSON.stringify(res.data));
@@ -60,7 +60,7 @@ const Login = () => {
 
   useEffect(() => {
     try {
-      axios.get('http://localhost:7000/api/user-login', { withCredentials: true })
+      axios.get('https://carbooking-backend-fo78.onrender.com/api/user-login', { withCredentials: true })
         .then((res) => {
           if (res.data.loggedIn) {
             localStorage.setItem('user', JSON.stringify(res.data));
